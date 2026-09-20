@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo — HTML dari Video</title>
+  <meta name="description" content="Satu file HTML responsive dengan layout produk, carousel, modal, dan interaksi." />
+  <style>
+    /* Reset sederhana */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:#111}
+    a{color:inherit;text-decoration:none}
+
+    /* Layout */
+    .container{max-width:1100px;margin:28px auto;padding:16px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .logo{font-weight:700;font-size:20px}
+    nav{display:flex;gap:12px}
+    .btn{background:#0b79d0;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;border:0}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:center;background:linear-gradient(180deg,#f7fbff,#fff);padding:20px;border-radius:14px}
+    .hero h1{font-size:28px;margin-bottom:8px}
+    .hero p{color:#444;margin-bottom:12px}
+
+    /* Product card grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:18px}
+    .card{background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(13,38,59,0.06);display:flex;flex-direction:column}
+    .img-wrap{height:160px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f2f6fb}
+    .img-wrap img{max-width:100%;max-height:100%;object-fit:cover}
+    .card h3{font-size:16px;margin:10px 0 6px}
+    .price{font-weight:700;color:#0b79d0}
+    .actions{margin-top:auto;display:flex;gap:8px}
+
+    /* Carousel small */
+    .carousel{position:relative;border-radius:10px;overflow:hidden}
+    .slides{display:flex;transition:transform .35s ease}
+    .slide{min-width:100%;display:flex;align-items:center;justify-content:center;padding:20px}
+    .carousel .dots{position:absolute;left:50%;transform:translateX(-50%);bottom:10px;display:flex;gap:6px}
+    .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.6);cursor:pointer}
+    .dot.active{background:#0b79d0}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,.45);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.open{display:flex}
+    .modal-card{width:100%;max-width:720px;background:#fff;border-radius:12px;padding:18px}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .hero img{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">TOKO DEMO</div>
+      <nav>
+        <a href="#products">Produk</a>
+        <a href="#about">Tentang</a>
+        <button class="btn" id="openCart">Keranjang (0)</button>
+      </nav>
+    </header>
+
+    <section class="hero" aria-label="Hero">
+      <div>
+        <h1>Produk Terbaru — Promo Spesial</h1>
+        <p>Lihat koleksi terbaru di toko kami. Klik gambar untuk melihat detail dan tambah ke keranjang.</p>
+        <div style="display:flex;gap:10px">
+          <button class="btn" id="shopNow">Beli Sekarang</button>
+          <a href="#products" style="display:inline-flex;align-items:center;padding:8px 12px;border-radius:8px;border:1px solid #e6eef9">Lihat Semua</a>
+        </div>
+
+        <!-- kecil carousel contoh -->
+        <div style="margin-top:14px">
+          <div class="carousel" id="heroCarousel" style="height:160px;border-radius:10px;overflow:hidden">
+            <div class="slides" id="slides">
+              <div class="slide"><img src="https://picsum.photos/seed/a/800/450" alt="promo-1" style="width:100%;height:100%;object-fit:cover"/></div>
+              <div class="slide"><img src="https://picsum.photos/seed/b/800/450" alt="promo-2" style="width:100%;height:100%;object-fit:cover"/></div>
+              <div class="slide"><img src="https://picsum.photos/seed/c/800/450" alt="promo-3" style="width:100%;height:100%;object-fit:cover"/></div>
+            </div>
+            <div class="dots" id="dots"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(13,38,59,0.06)">
+          <h4 style="margin-bottom:8px">Flash Sale</h4>
+          <img src="https://picsum.photos/seed/promo/420/260" alt="flash" style="width:100%;border-radius:8px;object-fit:cover"/>
+        </div>
+
+        <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(13,38,59,0.04);text-align:center">
+          <small>Gratis ongkir untuk pembelian > Rp 100.000</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="products">
+      <h2 style="margin-top:18px">Produk Pilihan</h2>
+      <div class="grid" id="productGrid">
+        <!-- cards di-generate via JS -->
+      </div>
+    </section>
+
+    <footer style="margin-top:22px;padding:18px;text-align:center;color:#666;font-size:14px">
+      © 2025 Toko Demo — Dibuat dengan HTML + JS
+    </footer>
+  </div>
+
+  <!-- modal detail -->
+  <div class="modal" id="modal">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button id="closeModal" style="float:right;border:0;background:transparent;font-size:18px;cursor:pointer">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // contoh data produk (bisa diganti sesuai video)
+    const products = [
+      {id:1,name:'Headphone Wireless X1',price:299000,img:'https://picsum.photos/seed/1/400/300',desc:'Headphone nyaman, suara jernih, baterai 24 jam.'},
+      {id:2,name:'Speaker Mini Portable',price:149000,img:'https://picsum.photos/seed/2/400/300',desc:'Speaker kecil & powerful, Bluetooth 5.0.'},
+      {id:3,name:'Charger Cepat 45W',price:99000,img:'https://picsum.photos/seed/3/400/300',desc:'Charger cepat untuk semua device.'},
+      {id:4,name:'Smartwatch Active',price:499000,img:'https://picsum.photos/seed/4/400/300',desc:'Lacak langkah, detak jantung, notifikasi.'},
+      {id:5,name:'Case Smartphone',price:39000,img:'https://picsum.photos/seed/5/400/300',desc:'Case tipis dan kuat, anti gores.'},
+      {id:6,name:'Powerbank 20.000mAh',price:179000,img:'https://picsum.photos/seed/6/400/300',desc:'Dua port, fast charging.'}
+    ];
+
+    const grid = document.getElementById('productGrid');
+    const cartBtn = document.getElementById('openCart');
+    let cartCount = 0;
+
+    function formatRupiah(n){return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');}
+
+    function renderProducts(){
+      grid.innerHTML = '';
+      for(const p of products){
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `
+          <div class="img-wrap"><img src="${p.img}" alt="${p.name}"/></div>
+          <h3>${p.name}</h3>
+          <div class="price">${formatRupiah(p.price)}</div>
+          <p style="color:#666;font-size:13px;margin-top:8px">${p.desc}</p>
+          <div class="actions">
+            <button class="btn" data-id="${p.id}" onclick="addToCart(${p.id})">Tambah</button>
+            <button style="padding:8px 10px;border-radius:8px;border:1px solid #eee;cursor:pointer" onclick="openDetail(${p.id})">Detail</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    function addToCart(id){
+      cartCount++;
+      cartBtn.textContent = `Keranjang (${cartCount})`;
+      // animasi sederhana
+      cartBtn.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:240});
+    }
+
+    function openDetail(id){
+      const p = products.find(x=>x.id===id);
+      const modal = document.getElementById('modal');
+      const content = document.getElementById('modalContent');
+      content.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+          <div><img src="${p.img}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover"/></div>
+          <div>
+            <h3>${p.name}</h3>
+            <div class="price">${formatRupiah(p.price)}</div>
+            <p style="margin:8px 0;color:#555">${p.desc}</p>
+            <button class="btn" onclick="addToCart(${p.id})">Tambah ke Keranjang</button>
+          </div>
+        </div>
+      `;
+      modal.classList.add('open');
+    }
+
+    document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
+    document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') e.target.classList.remove('open') });
+
+    // hero carousel sederhana
+    (function carousel(){
+      const slides = document.getElementById('slides');
+      const dotsWrap = document.getElementById('dots');
+      const total = slides.children.length; let idx=0;
+      for(let i=0;i<total;i++){ const d=document.createElement('div'); d.className='dot'+(i===0?' active':''); d.addEventListener('click',()=>go(i)); dotsWrap.appendChild(d); }
+      function go(i){ idx=i; slides.style.transform = `translateX(-${i*100}%)`; updateDots(); }
+      function updateDots(){ Array.from(dotsWrap.children).forEach((d,i)=>d.className = (i===idx)?'dot active':'dot'); }
+      setInterval(()=>{ idx = (idx+1)%total; go(idx); },3500);
+    })();
+
+    // init
+    renderProducts();
+
+    // tombol shopNow scroll
+    document.getElementById('shopNow').addEventListener('click',()=>{document.getElementById('products').scrollIntoView({behavior:'smooth'})});
+  </script>
+</body>
+</html>

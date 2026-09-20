@@ -1,0 +1,537 @@
+<doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Shopee-style Shop — Demo</title>
+  <style>
+    :root{
+      --accent:#ff5a00;
+      --muted:#f4f5f7;
+      --card:#ffffff;
+      --text:#111827;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 6px 18px rgba(16,24,40,0.08);
+      --radius:12px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#fafafa 0%, #fff 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      min-height:100vh;
+      padding:24px;
+    }
+
+    /* Header */
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .logo{
+      width:52px;height:52px;border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),#ff8a3d);
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;
+      box-shadow:var(--shadow);
+      font-size:18px;
+    }
+    .title{font-size:18px;font-weight:700}
+    .subtitle{font-size:12px;color:#6b7280}
+
+    /* Search & actions */
+    .controls{flex:1;display:flex;gap:12px;align-items:center;justify-content:flex-end}
+    .search{
+      min-width:280px;flex:1;max-width:720px;
+      display:flex;padding:10px;border-radius:9999px;background:var(--card);
+      box-shadow:var(--shadow);align-items:center;gap:10px;border:1px solid rgba(16,24,40,0.04);
+    }
+    .search input{
+      border:0;outline:0;font-size:14px;background:transparent;width:100%;
+    }
+    .icon-btn{
+      background:transparent;border:0;padding:8px;border-radius:8px;cursor:pointer;
+    }
+
+    /* Layout */
+    .layout{display:grid;grid-template-columns:240px 1fr;gap:20px}
+    @media (max-width:880px){ .layout{grid-template-columns:1fr} .sidebar{order:2} .main{order:1} }
+
+    /* Sidebar categories & filters */
+    .sidebar{background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .category{display:flex;flex-direction:column;gap:8px}
+    .category button{
+      text-align:left;padding:10px;border-radius:8px;border:1px solid transparent;background:transparent;cursor:pointer;
+    }
+    .category button.active{background:var(--muted);border-color:rgba(16,24,40,0.04)}
+
+    /* Product Grid */
+    .main{display:flex;flex-direction:column;gap:16px}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .grid{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+    }
+    @media (max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:420px){.grid{grid-template-columns:repeat(1,1fr)}}
+
+    .card{
+      background:var(--card);border-radius:14px;padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;
+      transition:transform .12s ease,box-shadow .12s ease;
+    }
+    .card:hover{transform:translateY(-6px)}
+    .thumb{height:160px;border-radius:10px;background-size:cover;background-position:center}
+    .meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .name{font-weight:600;font-size:14px}
+    .price{font-weight:700;color:var(--accent)}
+    .muted{font-size:12px;color:#6b7280}
+
+    .actions{display:flex;gap:8px}
+    .btn{
+      padding:8px 10px;border-radius:10px;border:0;cursor:pointer;font-weight:600;
+      box-shadow:none;background:var(--accent);color:#fff;
+    }
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(255,90,0,0.12)}
+
+    /* Cart sidebar */
+    .cart-toggle{position:relative}
+    .cart-count{
+      position:absolute;top:-6px;right:-6px;background:#ff3b30;color:#fff;border-radius:999px;padding:4px 7px;font-size:12px;font-weight:700;
+      box-shadow:var(--shadow)
+    }
+    .cart-panel{
+      position:fixed;right:24px;top:80px;width:360px;max-width:92vw;background:var(--card);padding:14px;border-radius:14px;box-shadow:0 18px 48px rgba(16,24,40,0.12);
+      transform:translateY(0);z-index:60;
+    }
+
+    .cart-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px}
+    .cart-item .ci-thumb{width:56px;height:56px;border-radius:8px;background-size:cover;background-position:center}
+    .qty{display:flex;gap:6px;align-items:center}
+    .small{font-size:13px;color:#374151}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.5);display:flex;align-items:center;justify-content:center;z-index:80}
+    .modal{background:var(--card);border-radius:12px;padding:16px;max-width:920px;width:92vw;box-shadow:0 30px 80px rgba(2,6,23,0.35);display:flex;gap:16px}
+    .modal .left{flex:1}
+    .modal .right{flex:1;display:flex;flex-direction:column;gap:10px}
+
+    footer{margin-top:28px;text-align:center;color:#6b7280;font-size:13px}
+
+    /* small helpers */
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;background:var(--muted);font-weight:600;font-size:13px}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">SS</div>
+    <div>
+      <div class="title">ShopeeShop (Demo)</div>
+      <div class="subtitle">Toko demo — tanpa backend</div>
+    </div>
+  </div>
+
+  <div class="controls" style="flex:2">
+    <div class="search" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="#6b7280" stroke-width="1.5"></circle></svg>
+      <input id="searchInput" placeholder="Cari produk, mis. 'sepatu'..." />
+      <button class="icon-btn" onclick="doSearch()">Cari</button>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="cart-toggle">
+        <button class="icon-btn" onclick="toggleCart()" title="Buka keranjang">
+          🛒 Keranjang
+        </button>
+        <div id="cartCount" class="cart-count" style="display:none">0</div>
+      </div>
+      <button class="icon-btn" title="Akun">👤</button>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h4 style="margin:0 0 10px 0">Kategori</h4>
+    <div class="category" id="categories">
+      <!-- Buttons injected by JS -->
+    </div>
+
+    <hr style="margin:12px 0;border:none;border-top:1px solid #eef2f7" />
+
+    <h4 style="margin:0 0 10px 0">Filter</h4>
+    <div class="chips" style="margin-bottom:8px">
+      <div class="chip" onclick="applyPrice('all')">Semua</div>
+      <div class="chip" onclick="applyPrice('under100')">Rp &lt; 100.000</div>
+      <div class="chip" onclick="applyPrice('100-500')">Rp 100.000 - 500.000</div>
+      <div class="chip" onclick="applyPrice('500+')">Rp &gt; 500.000</div>
+    </div>
+    <div style="font-size:13px;color:#6b7280">Contoh filter sederhana. Bisa dikembangkan ke slider/harga nyata.</div>
+  </aside>
+
+  <!-- Main -->
+  <section class="main">
+    <div class="toolbar">
+      <div>
+        <div style="font-weight:700">Produk</div>
+        <div class="muted" id="resultInfo">Menampilkan semua produk</div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="muted">Urutkan:</label>
+        <select id="sortSelect" onchange="renderProducts()">
+          <option value="popular">Terpopuler</option>
+          <option value="low">Harga: Rendah ke Tinggi</option>
+          <option value="high">Harga: Tinggi ke Rendah</option>
+          <option value="new">Terbaru</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid" id="productGrid">
+      <!-- cards injected here -->
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer>
+  Demo toko — semua produk fiksi • Dibuat untuk latihan frontend
+</footer>
+
+<!-- Cart Panel (hidden until opened) -->
+<div id="cartPanel" style="display:none" class="cart-panel" aria-hidden="true">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="font-weight:800">Keranjang Anda</div>
+    <button class="icon-btn" onclick="toggleCart()">✕</button>
+  </div>
+  <div id="cartItems" style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto">
+    <!-- cart items -->
+  </div>
+
+  <div style="border-top:1px dashed #e6e9ee;padding-top:10px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div class="muted small">Total</div>
+      <div style="font-weight:800" id="cartTotal">Rp 0</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn" onclick="checkout()">Checkout</button>
+      <button class="btn ghost" onclick="clearCart()">Kosongkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div id="modalBackdrop" style="display:none" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="left">
+      <div id="modalImage" class="thumb" style="height:300px;border-radius:12px;background-size:cover"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <div class="muted small">#demo</div>
+        <div class="muted small">Stok: <span id="modalStock">—</span></div>
+      </div>
+    </div>
+    <div class="right">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800;font-size:18px" id="modalTitle">Nama produk</div>
+        <div style="font-weight:800;color:var(--accent)" id="modalPrice">Rp 0</div>
+      </div>
+      <div class="muted" id="modalDesc" style="margin-top:8px">Deskripsi singkat produk</div>
+
+      <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+        <label class="muted small">Jumlah</label>
+        <div class="qty">
+          <button class="icon-btn" onclick="changeModalQty(-1)">−</button>
+          <input id="modalQty" value="1" min="1" style="width:48px;padding:6px;border-radius:8px;border:1px solid #eef2f7;text-align:center" />
+          <button class="icon-btn" onclick="changeModalQty(1)">+</button>
+        </div>
+      </div>
+
+      <div style="margin-top:auto;display:flex;gap:8px">
+        <button class="btn" onclick="addModalToCart()">Masukkan Keranjang</button>
+        <button class="btn ghost" onclick="closeModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Demo product data =====
+   Ganti / ambil dari API sesuai kebutuhan.
+*/
+const products = [
+  {id:1, name:"Sneakers Casual Pria", price:199000, img:"https://web.whatsapp.com/e74ef82c-4d19-42eb-b100-9695cee71bee", category:"Sepatu", stock:12, desc:"Sneakers nyaman untuk aktivitas sehari-hari."},
+  {id:2, name:"Tas Ransel Travel 20L", price:149000, img:"https://picsum.photos/id/25/600/400", category:"Tas", stock:8, desc:"Ransel anti air dengan beberapa kompartemen."},
+  {id:3, name:"Jam Tangan Analog", price:89000, img:"https://picsum.photos/id/42/600/400", category:"Aksesoris", stock:20, desc:"Jam tangan klasik, cocok untuk hadiah."},
+  {id:4, name:"Headset Gaming RGB", price:299000, img:"https://picsum.photos/id/45/600/400", category:"Elektronik", stock:5, desc:"Suara jernih, mikrofon noise-cancelling."},
+  {id:5, name:"Kaos Polos Katun", price:59000, img:"https://picsum.photos/id/12/600/400", category:"Pakaian", stock:40, desc:"Kaos lembut dari katun combed."},
+  {id:6, name:"Powerbank 10000mAh", price:129000, img:"https://picsum.photos/id/53/600/400", category:"Elektronik", stock:15, desc:"Powerbank kecil, cepat isi ulang."},
+  {id:7, name:"Sepatu Anak Lucu", price:119000, img:"https://picsum.photos/id/31/600/400", category:"Sepatu", stock:9, desc:"Desain lucu dan aman untuk anak-anak."},
+  {id:8, name:"Dompet Kulit Pria", price:85000, img:"https://picsum.photos/id/65/600/400", category:"Aksesoris", stock:22, desc:"Dompet tipis dengan banyak slot kartu."},
+  {id:9, name:"Kemeja Formal Slimfit", price:179000, img:"https://picsum.photos/id/3/600/400", category:"Pakaian", stock:11, desc:"Kemeja bahan adem, cocok kerja kantor."},
+  {id:10, name:"Sandal Wanita", price:69000, img:"https://picsum.photos/id/14/600/400", category:"Sepatu", stock:25, desc:"Sandal stylish dan nyaman."}
+];
+
+/* App state */
+let state = {
+  products: [...products],
+  filtered: [...products],
+  cart: {}, // {productId: qty}
+  currentCategory: 'Semua',
+  priceFilter: 'all',
+  search: '',
+  modalProduct: null
+};
+
+/* --- Utilities --- */
+function formatRupiah(n){
+  return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/* --- Category rendering --- */
+function buildCategories(){
+  const cats = ['Semua', ...Array.from(new Set(products.map(p=>p.category)))];
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
+  cats.forEach(c=>{
+    const btn = document.createElement('button');
+    btn.textContent = c;
+    btn.onclick = ()=>{ state.currentCategory = c; applyFilters(); highlightCategory(); }
+    btn.className = (state.currentCategory===c)?'active':'';
+    container.appendChild(btn);
+  });
+}
+function highlightCategory(){ buildCategories(); }
+
+/* --- Product grid --- */
+function renderProducts(){
+  let list = [...products];
+
+  // search
+  const q = state.search.trim().toLowerCase();
+  if(q){
+    list = list.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
+    document.getElementById('resultInfo').textContent = `Hasil pencarian untuk "${state.search}" — ${list.length} produk`;
+  } else {
+    document.getElementById('resultInfo').textContent = `Menampilkan ${list.length} produk`;
+  }
+
+  // category
+  if(state.currentCategory !== 'Semua'){
+    list = list.filter(p => p.category === state.currentCategory);
+  }
+
+  // price filter
+  if(state.priceFilter === 'under100') list = list.filter(p=>p.price < 100000);
+  if(state.priceFilter === '100-500') list = list.filter(p=>p.price >=100000 && p.price <=500000);
+  if(state.priceFilter === '500+') list = list.filter(p=>p.price > 500000);
+
+  // sorting
+  const sort = document.getElementById('sortSelect').value;
+  if(sort === 'low') list.sort((a,b)=>a.price-b.price);
+  if(sort === 'high') list.sort((a,b)=>b.price-a.price);
+  if(sort === 'new') list.sort((a,b)=>b.id-a.id);
+
+  state.filtered = list;
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '';
+
+  list.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="thumb" style="background-image:url('${p.img}')"></div>
+      <div class="meta">
+        <div style="flex:1">
+          <div class="name">${p.name}</div>
+          <div class="muted">${p.category} • Stok ${p.stock}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="price">${formatRupiah(p.price)}</div>
+          <div class="muted" style="font-size:12px">Terjual: ${(Math.floor(Math.random()*200)+1)}</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+        <div class="actions">
+          <button class="btn ghost" onclick="openModal(${p.id})">Detail</button>
+          <button class="btn" onclick="addToCart(${p.id},1)">+ Keranjang</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* --- Search & Filters --- */
+function doSearch(){
+  const val = document.getElementById('searchInput').value;
+  state.search = val;
+  renderProducts();
+}
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') doSearch();
+});
+function applyPrice(key){
+  state.priceFilter = key;
+  renderProducts();
+}
+
+/* --- Cart logic --- */
+function saveCart(){ localStorage.setItem('demo_cart_v1', JSON.stringify(state.cart)); updateCartUI(); }
+function loadCart(){ const raw = localStorage.getItem('demo_cart_v1'); if(raw) state.cart = JSON.parse(raw); updateCartUI(); }
+function addToCart(id, qty=1){
+  const p = products.find(x=>x.id===id);
+  if(!p) return alert('Produk tidak ditemukan');
+  state.cart[id] = (state.cart[id] || 0) + qty;
+  if(state.cart[id] > p.stock) state.cart[id] = p.stock;
+  saveCart();
+  showToast(`${p.name} ditambahkan ke keranjang`);
+}
+function addModalToCart(){
+  if(!state.modalProduct) return;
+  const qty = parseInt(document.getElementById('modalQty').value) || 1;
+  addToCart(state.modalProduct.id, qty);
+  closeModal();
+  toggleCart(true);
+}
+function updateCartUI(){
+  const count = Object.values(state.cart).reduce((s,v)=>s+v,0);
+  const el = document.getElementById('cartCount');
+  if(count>0){ el.style.display='block'; el.textContent = count; } else { el.style.display='none'; }
+
+  const items = document.getElementById('cartItems');
+  items.innerHTML = '';
+  let total = 0;
+  for(const [id, qty] of Object.entries(state.cart)){
+    const p = products.find(x=>x.id==id);
+    if(!p) continue;
+    total += p.price * qty;
+    const row = document.createElement('div');
+    row.className = 'cart-item';
+    row.innerHTML = `
+      <div style="flex:1;display:flex;gap:10px;align-items:center">
+        <div class="ci-thumb" style="background-image:url('${p.img}')"></div>
+        <div style="flex:1">
+          <div style="font-weight:700">${p.name}</div>
+          <div class="muted small">${formatRupiah(p.price)} x ${qty}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <div class="muted small">${formatRupiah(p.price * qty)}</div>
+        <div style="display:flex;gap:6px">
+          <button class="icon-btn" onclick="changeCartQty(${p.id}, -1)">−</button>
+          <div style="min-width:28px;text-align:center">${qty}</div>
+          <button class="icon-btn" onclick="changeCartQty(${p.id}, 1)">+</button>
+        </div>
+      </div>
+    `;
+    items.appendChild(row);
+  }
+  document.getElementById('cartTotal').textContent = formatRupiah(total);
+}
+
+/* change qty in cart */
+function changeCartQty(id, delta){
+  if(!state.cart[id]) return;
+  state.cart[id] += delta;
+  if(state.cart[id] <= 0) delete state.cart[id];
+  const p = products.find(x=>x.id==id);
+  if(p && state.cart[id] > p.stock) state.cart[id] = p.stock;
+  saveCart();
+}
+
+/* clear cart */
+function clearCart(){ if(!confirm('Kosongkan keranjang?')) return; state.cart = {}; saveCart(); }
+
+/* checkout (demo) */
+function checkout(){
+  if(Object.keys(state.cart).length === 0) return alert('Keranjang kosong');
+  alert('Terima kasih! Ini demo — implementasi checkout diperlukan untuk fitur penuh.');
+  state.cart = {};
+  saveCart();
+  toggleCart();
+}
+
+/* toggle cart panel */
+let cartOpen = false;
+function toggleCart(forceOpen=false){
+  cartOpen = (typeof forceOpen === 'boolean') ? forceOpen : !cartOpen;
+  const panel = document.getElementById('cartPanel');
+  panel.style.display = cartOpen ? 'block' : 'none';
+  panel.setAttribute('aria-hidden', !cartOpen);
+}
+
+/* --- Modal for product detail --- */
+function openModal(id){
+  const p = products.find(x=>x.id===id);
+  if(!p) return;
+  state.modalProduct = p;
+  document.getElementById('modalImage').style.backgroundImage = `url('${p.img}')`;
+  document.getElementById('modalTitle').textContent = p.name;
+  document.getElementById('modalPrice').textContent = formatRupiah(p.price);
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalStock').textContent = p.stock;
+  document.getElementById('modalQty').value = 1;
+  document.getElementById('modalBackdrop').style.display = 'flex';
+  document.getElementById('modalBackdrop').setAttribute('aria-hidden','false');
+}
+function closeModal(){
+  state.modalProduct = null;
+  document.getElementById('modalBackdrop').style.display = 'none';
+  document.getElementById('modalBackdrop').setAttribute('aria-hidden','true');
+}
+function changeModalQty(delta){
+  const el = document.getElementById('modalQty');
+  let v = parseInt(el.value) || 1; v += delta;
+  if(v < 1) v = 1;
+  if(state.modalProduct && v > state.modalProduct.stock) v = state.modalProduct.stock;
+  el.value = v;
+}
+
+/* small toast */
+let toastTimer = null;
+function showToast(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.position='fixed'; t.style.left='50%'; t.style.transform='translateX(-50%)';
+  t.style.bottom='28px'; t.style.background='rgba(0,0,0,0.8)'; t.style.color='#fff';
+  t.style.padding='10px 14px'; t.style.borderRadius='999px'; t.style.zIndex=999;
+  document.body.appendChild(t);
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.remove(); }, 2200);
+}
+
+/* initialize */
+function applyFilters(){ renderProducts(); buildCategories(); }
+document.addEventListener('DOMContentLoaded', ()=>{
+  buildCategories();
+  renderProducts();
+  loadCart();
+});
+
+/* close modal on backdrop click */
+document.getElementById('modalBackdrop').addEventListener('click', (e)=>{
+  if(e.target === document.getElementById('modalBackdrop')) closeModal();
+});
+
+/* small accessibility keyboard shortcuts */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'c' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); toggleCart(true); }
+  if(e.key === 'Escape'){ closeModal(); toggleCart(false); }
+});
+</script>
+</body>
+</html>
