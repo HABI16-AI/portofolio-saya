@@ -130,6 +130,33 @@
     /* small helpers */
     .chips{display:flex;gap:8px;flex-wrap:wrap}
     .chip{padding:6px 10px;border-radius:999px;background:var(--muted);font-weight:600;font-size:13px}
+    /* --- Perbaikan Tampilan HP (Responsive) --- */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px; /* Kurangi jarak pinggir layar */
+      }
+      header {
+        flex-direction: column; /* Menumpuk logo dan pencarian ke bawah */
+        align-items: stretch;
+      }
+      .controls {
+        flex-direction: column;
+        width: 100%;
+      }
+      .search {
+        min-width: 100%; /* Kotak pencarian tidak meluap ke kanan */
+      }
+      .grid {
+        grid-template-columns: repeat(2, 1fr); /* Tampilan 2 produk per baris di HP */
+        gap: 10px;
+      }
+      .card {
+        padding: 8px;
+      }
+      .thumb {
+        height: 120px; /* Sesuaikan tinggi gambar produk */
+      }
+    }
   </style>
 </head>
 <body>
