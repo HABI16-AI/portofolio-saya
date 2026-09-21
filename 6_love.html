@@ -50,6 +50,29 @@
       .hero{grid-template-columns:1fr}
       .hero img{width:100%}
     }
+    /* --- Perbaikan Tampilan HP (Responsive) --- */
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px auto;
+        padding: 10px;
+      }
+      header {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+      .hero h1 {
+        font-size: 20px;
+      }
+      .grid {
+        grid-template-columns: repeat(2, 1fr); /* Tampilan 2 produk per baris */
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
